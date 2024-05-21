@@ -1,0 +1,17 @@
+---
+- name: Promote a satellite content view
+  hosts: '{{ target | default("satellite") }}'
+  gather_facts: false
+  vars_files: ../vault.yml
+  tasks:
+    - name: Promote a content view
+      redhat.satellite.content_view_version:
+        username: "{{ satellite_ops_username }}"
+        password: "{{ satellite_ops_password }}"
+        server_url: "{{ satellite_ops_server_url }}"
+        content_view: "{{ item }}"
+        organization: "{{ satellite_ops_org_name }}"
+        current_lifecycle_environment: "{{ satellite_ops_current_lc_env }}"
+        lifecycle_environments: "{{ satellite_ops_lc_env }}"
+        description: Promoted to {{ satellite_ops_lc_env }} on {{ lookup('pipe', 'date') }}
+      loop: "{{ satellite_ops_cv_name }}"

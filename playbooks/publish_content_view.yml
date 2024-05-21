@@ -1,0 +1,17 @@
+---
+- name: Publish a satellite content view
+  hosts: '{{ target | default("satellite") }}'
+  gather_facts: false
+  vars_files: ../vault.yml
+  tasks:
+    - name: Publish a content view
+      redhat.satellite.content_view_version:
+        username: "{{ satellite_ops_username }}"
+        password: "{{ satellite_ops_password }}"
+        server_url: "{{ satellite_ops_server_url }}"
+        content_view: "{{ item }}"
+        organization: "{{ satellite_ops_org_name }}"
+        lifecycle_environments:
+          - Library
+        description: Published on {{ lookup('pipe', 'date') }}
+      loop: "{{ satellite_ops_cv_name }}"
