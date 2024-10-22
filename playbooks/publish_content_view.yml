@@ -2,7 +2,6 @@
 - name: Publish a satellite content view
   hosts: '{{ target | default("all") }}'
   gather_facts: false
-  vars_files: ../vault.yml
   tasks:
     - name: Publish a content view
       redhat.satellite.content_view_version:
