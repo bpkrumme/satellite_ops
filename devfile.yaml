@@ -12,4 +12,4 @@ components:
       args: ['tail', '-f', '/dev/null']
       env:
         - name: 'ANSIBLE_COLLECTIONS_PATH'
-          value: '~/.ansible/collections:/usr/share/ansible/collections:/projects/satellite_ops/collections'
+          value: '~/.ansible/collections:/usr/share/ansible/collections:/projects/satellite-ops/collections'
