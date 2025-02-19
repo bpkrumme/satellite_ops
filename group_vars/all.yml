@@ -1,4 +1,4 @@
 ---
-satellite_ops_server_url: https://satellite.bk.mobile
+satellite_ops_server_url: https://satellite.bk.lab
 satellite_ops_username: "{{ satellite_username }}" # from encrypted vault.yml
 satellite_ops_password: "{{ satellite_password }}" # from encrypted vault.yml

@@ -1,0 +1,12 @@
+---
+- name: Delete a host from Satellite
+  hosts: '{{ target | default("all") }}'
+  become: false
+  tasks:
+    - name: Completely remove host from Satellite
+      redhat.satellite.host:
+        username: "{{ satellite_ops_username }}"
+        password: "{{ satellite_ops_password }}"
+        server_url: "{{ satellite_ops_server_url }}"
+        name: "{{ satellite_ops_content_host_name }}"
+        state: absent
