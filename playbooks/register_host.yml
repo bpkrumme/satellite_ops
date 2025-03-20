@@ -1,0 +1,21 @@
+---
+- name: Register a host to our Satellite Instance
+  hosts: '{{ target | default("all") }}'
+  become: true
+  vars:
+    rhc_state: present
+    rhc_organization: "{{ satellite_ops_org_name }}"
+    rhc_auth:
+      activation_keys:
+        keys: ["{{ satellite_ops_activation_key }}"]
+    rhc_insights:
+      state: present
+      autoupdate: true
+  pre_tasks:
+    - name: Install the katello ca package from satellite
+      ansible.builtin.dnf:
+        name: http://{{ satellite_ops_server_url }}/pub/katello-ca-consumer-latest.noarch.rpm
+        state: present
+  roles:
+    - redhat.rhel_system_roles.rhc
+      
