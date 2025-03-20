@@ -15,6 +15,7 @@
     - name: Install the katello ca package from satellite
       ansible.builtin.dnf:
         name: http://{{ satellite_ops_server_url }}/pub/katello-ca-consumer-latest.noarch.rpm
+        disable_gpg_check: true
         state: present
   roles:
     - redhat.rhel_system_roles.rhc
