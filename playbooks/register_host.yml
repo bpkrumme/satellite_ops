@@ -1,6 +1,6 @@
 ---
 - name: Register a host to our Satellite Instance
-  hosts: '{{ target | default("all") }}'
+  hosts: "{{ virt_ops_vm_name | default('all') }}"
   become: true
   vars:
     rhc_state: present
