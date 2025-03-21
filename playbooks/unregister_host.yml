@@ -1,0 +1,16 @@
+---
+- name: Register a host to our Satellite Instance
+  hosts: "{{ virt_ops_vm_name | default('none') }}"
+  become: true
+  vars:
+    rhc_state: absent
+    rhc_insights:
+      state: absent
+  roles:
+    - redhat.rhel_system_roles.rhc
+  post_tasks:
+    - name: Uninstall the katello ca package
+      ansible.builtin.dnf:
+        name: katello-ca-consumer
+        state: absent
+      
