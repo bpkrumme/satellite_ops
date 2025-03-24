@@ -1,7 +1,9 @@
 ---
 - name: Delete a host from Satellite
-  hosts: '{{ target | default("all") }}'
+  hosts: localhost
   become: false
+  vars:
+    satellite_ops_content_host_name: "{{ virt_ops_vm_name }}"
   tasks:
     - name: Completely remove host from Satellite
       redhat.satellite.host:
