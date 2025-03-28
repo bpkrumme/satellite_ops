@@ -1,5 +1,5 @@
 ---
-- name: Register a host to our Satellite Instance
+- name: Unregister a host from our Satellite Instance
   hosts: "{{ virt_ops_vm_name | default('none') }}"
   become: true
   vars:
