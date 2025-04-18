@@ -13,3 +13,4 @@
         validate_certs: "{{ satellite_ops_validate_certs }}"
         name: "{{ satellite_ops_content_host_name }}"
         state: absent
+...

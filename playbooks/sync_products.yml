@@ -1,6 +1,6 @@
 ---
 - name: Sync a satellite repository
-  hosts: '{{ target | default("all") }}'
+  hosts: '{{ target | default("satellite") }}'
   gather_facts: false
   tasks:
     - name: Synchronize a Satellite repository
@@ -12,3 +12,4 @@
         product: "{{ item }}"
         validate_certs: false
       loop: "{{ satellite_ops_product }}"
+...

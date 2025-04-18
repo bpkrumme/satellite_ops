@@ -1,3 +1,4 @@
+---
 schemaVersion: 2.2.2
 metadata:
   name: satellite_ops
@@ -13,3 +14,4 @@ components:
       env:
         - name: 'ANSIBLE_COLLECTIONS_PATH'
           value: '~/.ansible/collections:/usr/share/ansible/collections:/projects/satellite-ops/collections'
+...

@@ -1,6 +1,6 @@
 ---
 - name: Promote a satellite content view
-  hosts: '{{ target | default("all") }}'
+  hosts: '{{ target | default("satellite") }}'
   gather_facts: false
   tasks:
     - name: Promote a content view
@@ -14,3 +14,4 @@
         lifecycle_environments: "{{ satellite_ops_lc_env }}"
         description: Promoted to {{ satellite_ops_lc_env }} on {{ lookup('pipe', 'date') }}
       loop: "{{ satellite_ops_cv_name }}"
+...
