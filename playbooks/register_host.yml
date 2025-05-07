@@ -1,6 +1,6 @@
 ---
 - name: Register a host to our Satellite Instance
-  hosts: "{{ virt_ops_vm_name | default('none') }}"
+  hosts: "{{ vm_name | default('none') }}"
   become: true
   vars:
     satellite_ops_activation_key: "{{ satellite_ops_environment }}{{ satellite_ops_server_type }}Hosts"
