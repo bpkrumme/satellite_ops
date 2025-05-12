@@ -1,6 +1,6 @@
 ---
 - name: Unregister a host from our Satellite Instance
-  hosts: "{{ virt_ops_vm_name | default('none') }}"
+  hosts: "{{ vm_name | default('none') }}"
   become: true
   vars:
     rhc_state: absent
