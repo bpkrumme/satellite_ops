@@ -1,6 +1,6 @@
 ---
 - name: Publish a satellite content view
-  hosts: "{{ localhost | default('none') }}"
+  hosts: "{{ satellite_ops_server_name | default('none') }}"
   gather_facts: false
   tasks:
     - name: Publish a content view
