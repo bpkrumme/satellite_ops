@@ -1,6 +1,6 @@
 ---
 - name: Sync a satellite repository
-  hosts: localhost
+  hosts: "{{ satellite_ops_server_name | default('satellite') }}"
   gather_facts: false
   tasks:
     - name: Synchronize a Satellite repository
