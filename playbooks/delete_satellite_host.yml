@@ -10,7 +10,7 @@
         username: "{{ satellite_ops_username }}"
         password: "{{ satellite_ops_password }}"
         server_url: "{{ satellite_ops_server_url }}"
-        validate_certs: "{{ satellite_ops_validate_certs }}"
+        validate_certs: false
         name: "{{ satellite_ops_content_host_name }}"
         state: absent
 ...
