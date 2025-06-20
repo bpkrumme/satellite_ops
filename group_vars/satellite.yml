@@ -3,8 +3,7 @@ satellite_host: "{{ satellite_hostname }}"
 satellite_installer_scenario: satellite
 satellite_installer_verbose: true
 satellite_installer_options:
-  - '--foreman-initial-organization "{{ satellite_organization }}"'
-  - '--foreman-initial-location "{{ satellite_location }}"'
+  - --foreman-initial-organization "{{ satellite_organization }}"
+  - --foreman-initial-location "{{ satellite_location }}"
   - '--foreman-initial-admin-username "{{ satellite_ops_username: }}"'
   - '--foreman-initial-admin-password "{{ satellite_ops_password: }}"'
-...

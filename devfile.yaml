@@ -10,8 +10,7 @@ components:
       memoryLimit: 6Gi
       cpuRequest: 250m
       cpuLimit: 2000m
-      args: ['tail', '-f', '/dev/null']
+      args: [tail, -f, /dev/null]
       env:
-        - name: 'ANSIBLE_COLLECTIONS_PATH'
-          value: '~/.ansible/collections:/usr/share/ansible/collections:/projects/satellite-ops/collections'
-...
+        - name: ANSIBLE_COLLECTIONS_PATH
+          value: ~/.ansible/collections:/usr/share/ansible/collections:/projects/satellite-ops/collections

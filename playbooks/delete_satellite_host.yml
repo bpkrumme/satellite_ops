@@ -6,11 +6,10 @@
     satellite_ops_content_host_name: "{{ vm_name }}"
   tasks:
     - name: Completely remove host from Satellite
-      redhat.satellite.host:
+      awx.awx.host:
         username: "{{ satellite_ops_username }}"
         password: "{{ satellite_ops_password }}"
         server_url: "{{ satellite_ops_server_url }}"
         validate_certs: false
         name: "{{ satellite_ops_content_host_name }}"
         state: absent
-...

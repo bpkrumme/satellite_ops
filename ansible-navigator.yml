@@ -12,4 +12,4 @@ ansible-navigator:
     image: production-aap.apps.ocp.bk.lab/homelab_execution_environments/satellite_ee:latest
   playbook-artifact:
     enable: true
-    save-as: 'artifacts/{playbook_name}-artifact-{time_stamp}.json'
+    save-as: artifacts/{playbook_name}-artifact-{time_stamp}.json

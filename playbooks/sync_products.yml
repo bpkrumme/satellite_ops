@@ -4,12 +4,11 @@
   gather_facts: false
   tasks:
     - name: Synchronize a Satellite repository
-      redhat.satellite.repository_sync:
+      loop: "{{ satellite_ops_product }}"
+      theforeman.foreman.repository_sync:
         username: "{{ satellite_ops_username }}"
         password: "{{ satellite_ops_password }}"
         server_url: "{{ satellite_ops_server_url }}"
         organization: "{{ satellite_ops_org_name }}"
         product: "{{ item }}"
         validate_certs: false
-      loop: "{{ satellite_ops_product }}"
-...

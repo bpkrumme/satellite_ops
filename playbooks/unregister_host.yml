@@ -13,4 +13,3 @@
       ansible.builtin.dnf:
         name: katello-ca-consumer
         state: absent
-...

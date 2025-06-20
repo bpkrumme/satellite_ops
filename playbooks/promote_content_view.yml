@@ -4,7 +4,8 @@
   gather_facts: false
   tasks:
     - name: Promote a content view
-      redhat.satellite.content_view_version:
+      loop: "{{ satellite_ops_cv_name }}"
+      theforeman.foreman.content_view_version:
         username: "{{ satellite_ops_username }}"
         password: "{{ satellite_ops_password }}"
         server_url: "{{ satellite_ops_server_url }}"
@@ -13,5 +14,3 @@
         current_lifecycle_environment: "{{ satellite_ops_current_lc_env }}"
         lifecycle_environments: "{{ satellite_ops_lc_env }}"
         description: Promoted to {{ satellite_ops_lc_env }} on {{ lookup('pipe', 'date') }}
-      loop: "{{ satellite_ops_cv_name }}"
-...

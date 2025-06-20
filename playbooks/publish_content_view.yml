@@ -4,7 +4,8 @@
   gather_facts: false
   tasks:
     - name: Publish a content view
-      redhat.satellite.content_view_version:
+      loop: "{{ satellite_ops_cv_name }}"
+      theforeman.foreman.content_view_version:
         username: "{{ satellite_ops_username }}"
         password: "{{ satellite_ops_password }}"
         server_url: "{{ satellite_ops_server_url }}"
@@ -13,5 +14,3 @@
         lifecycle_environments:
           - Library
         description: Published on {{ lookup('pipe', 'date') }}
-      loop: "{{ satellite_ops_cv_name }}"
-...
