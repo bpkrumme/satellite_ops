@@ -5,7 +5,7 @@
   tasks:
     - name: Synchronize a Satellite repository
       loop: "{{ satellite_ops_product }}"
-      theforeman.foreman.repository_sync:
+      redhat.satellite.repository_sync:
         username: "{{ satellite_ops_username }}"
         password: "{{ satellite_ops_password }}"
         server_url: "{{ satellite_ops_server_url }}"

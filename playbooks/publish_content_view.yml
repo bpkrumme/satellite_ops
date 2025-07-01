@@ -5,7 +5,7 @@
   tasks:
     - name: Publish a content view
       loop: "{{ satellite_ops_cv_name }}"
-      theforeman.foreman.content_view_version:
+      redhat.satellite.content_view_version:
         username: "{{ satellite_ops_username }}"
         password: "{{ satellite_ops_password }}"
         server_url: "{{ satellite_ops_server_url }}"
