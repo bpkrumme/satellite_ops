@@ -1,0 +1,50 @@
+---
+- name: Delete an Inventory Host in Red Hat Lightspeed (Insights)
+  hosts: localhost
+  gather_facts: false
+  vars:
+    hcc_client_id: "{{ vault_hcc_client_id | default(lookup('env', 'HCC_CLIENT_ID')) }}"
+    hcc_client_secret: "{{ vault_hcc_client_secret | default(lookup('env', 'HCC_CLIENT_SECRET')) }}"
+  pre_tasks:
+    - name: Get our service account token
+      ansible.builtin.uri:
+        url: "https://sso.redhat.com/auth/realms/redhat-external/protocol/openid-connect/token"
+        method: POST
+        body_format: form-urlencoded
+        status_code: 200
+        return_content: true
+        headers:
+          Content-Type: "application/x-www-form-urlencoded"
+        body:
+          client_id: "{{ hcc_client_id }}"
+          client_secret: "{{ hcc_client_secret }}"
+          scope: "openid api.iam.service_accounts"
+          grant_type: "client_credentials"
+      register: token_result
+
+  tasks:
+    - name: Get the host details based on fqdn
+      ansible.builtin.uri:
+        url: "https://console.redhat.com/api/inventory/v1/hosts"
+        method: GET
+        headers:
+          Authorization: "Bearer {{ token_result.json.access_token }}"
+      register: query_result
+
+#    - name: Show the query output
+#      ansible.builtin.debug:
+#        var: query_result.json | community.general.json_query('results[?fqdn==`{{ vm_name }}`]') | map(attribute='id') | join
+
+    - name: Set a fact for the host ID
+      ansible.builtin.set_fact:
+        hcc_host_id: "{{ query_result.json | community.general.json_query(fact_query) | map(attribute='id') | join }}"
+      vars:
+        fact_query: "results[?fqdn=='{{ vm_name }}']"
+
+    - name: Delete the host from Lightspeed Inventory
+      ansible.builtin.uri:
+        url: "https://console.redhat.com/api/inventory/v1/hosts/{{ hcc_host_id }}"
+        method: DELETE
+        headers:
+          Authorization: "Bearer {{ token_result.json.access_token }}"
+      when: hcc_host_id | length > 0
