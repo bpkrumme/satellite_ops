@@ -3,8 +3,8 @@
   hosts: localhost
   gather_facts: false
   vars:
-    hcc_client_id: "{{ vault_hcc_client_id | default(lookup('env', 'INSIGHTS_CLIENT_ID')) }}"
-    hcc_client_secret: "{{ vault_hcc_client_secret | default(lookup('env', 'INSIGHTS_CLIENT_SECRET')) }}"
+    hcc_client_id: "{{ vault_hcc_client_id | default(lookup('env', 'HCC_CLIENT_ID')) }}"
+    hcc_client_secret: "{{ vault_hcc_client_secret | default(lookup('env', 'HCC_CLIENT_SECRET')) }}"
   pre_tasks:
     - name: Get our service account token
       ansible.builtin.uri:
