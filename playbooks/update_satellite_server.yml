@@ -4,6 +4,14 @@
   gather_facts: true
   become: true
 
+  handlers:
+    - name: Reboot Satellite Server
+      ansible.builtin.reboot:
+        reboot_timeout: 3600
+        pre_reboot_delay: 120
+        post_reboot_delay: 120
+        msg: Rebooting after Satellite server update
+
   tasks:
     - name: Confirm Satellite Server packages are installed
       ansible.builtin.command: rpm -q satellite
@@ -20,12 +28,29 @@
             else []
           }}
 
+    - name: Check for pending package updates
+      ansible.builtin.command: dnf check-update -q
+      register: pending_updates
+      changed_when: false
+      failed_when: pending_updates.rc not in [0, 100]
+
+    - name: Record whether package updates are available
+      ansible.builtin.set_fact:
+        satellite_updates_available: "{{ pending_updates.rc == 100 }}"
+        satellite_pending_package_count: "{{ pending_updates.stdout_lines | default([]) | length }}"
+
     - name: Run satellite-maintain update check
       ansible.builtin.command:
         argv: "{{ ['satellite-maintain', 'update', 'check', '--plaintext', '-y'] + maintain_whitelist_argv }}"
       register: maintain_check
       changed_when: false
       when: (satellite_update_action | default('check')) in ['check', 'run']
+
+    - name: Record whether satellite-maintain reports the system is ready to update
+      ansible.builtin.set_fact:
+        satellite_maintain_ready_for_update: >-
+          {{ 'ready for update' in (maintain_check.stdout | default('') | lower) }}
+      when: maintain_check is not skipped
 
     - name: Show pre-update check results
       ansible.builtin.debug:
@@ -40,9 +65,28 @@
       poll: 60
       when: (satellite_update_action | default('check')) == 'run'
 
+    - name: Record whether updates were applied
+      ansible.builtin.set_fact:
+        satellite_updates_applied: >-
+          {{ maintain_update.finished == 1 and maintain_update.rc == 0 }}
+      when: maintain_update is not skipped
+
     - name: Show update run results
       ansible.builtin.debug:
         msg: "{{ maintain_update.stdout_lines | default([]) }}"
+      when: maintain_update is not skipped
+
+    - name: Re-check for pending package updates after update run
+      ansible.builtin.command: dnf check-update -q
+      register: pending_updates_after
+      changed_when: false
+      failed_when: pending_updates_after.rc not in [0, 100]
+      when: maintain_update is not skipped
+
+    - name: Record remaining package updates after update run
+      ansible.builtin.set_fact:
+        satellite_updates_available: "{{ pending_updates_after.rc == 100 }}"
+        satellite_pending_package_count: "{{ pending_updates_after.stdout_lines | default([]) | length }}"
       when: maintain_update is not skipped
 
     - name: Check whether a reboot is required
@@ -50,14 +94,29 @@
       register: reboot_required
       changed_when: false
       failed_when: reboot_required.rc not in [0, 1]
-      when: (satellite_update_action | default('check')) == 'run'
 
-    - name: Reboot Satellite Server
-      ansible.builtin.reboot:
-        reboot_timeout: 3600
-        pre_reboot_delay: 120
-        post_reboot_delay: 120
-        msg: Rebooting after Satellite server update
+    - name: Record whether a reboot is required
+      ansible.builtin.set_fact:
+        satellite_reboot_required: "{{ reboot_required.rc == 1 }}"
+
+    - name: Schedule Satellite reboot when required
+      ansible.builtin.command: /bin/true
+      changed_when: true
+      notify: Reboot Satellite Server
       when:
         - (satellite_update_action | default('check')) == 'run'
         - reboot_required.rc == 1
+
+    - name: Report Satellite update status
+      ansible.builtin.debug:
+        msg:
+          updates_available: "{{ satellite_updates_available | default(false) }}"
+          pending_package_count: "{{ satellite_pending_package_count | default(0) }}"
+          maintain_ready_for_update: "{{ satellite_maintain_ready_for_update | default(false) }}"
+          updates_applied: "{{ satellite_updates_applied | default(false) }}"
+          reboot_required: "{{ satellite_reboot_required | default(false) }}"
+          reboot_scheduled: >-
+            {{
+              (satellite_update_action | default('check')) == 'run'
+              and (satellite_reboot_required | default(false) | bool)
+            }}
