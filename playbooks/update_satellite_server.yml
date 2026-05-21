@@ -3,8 +3,6 @@
   hosts: "{{ vm_name | default('satellite.bk.lab') }}"
   gather_facts: true
   become: true
-  vars:
-    satellite_update_action: "{{ satellite_update_action | default('check') }}"
 
   tasks:
     - name: Confirm Satellite Server packages are installed
@@ -13,11 +11,21 @@
       changed_when: false
       failed_when: satellite_rpm.rc != 0
 
+    - name: Build satellite-maintain whitelist arguments
+      ansible.builtin.set_fact:
+        maintain_whitelist_argv: >-
+          {{
+            ['--whitelist=' + (satellite_maintain_whitelist | default('non-rh-packages'))]
+            if ((satellite_maintain_whitelist | default('non-rh-packages')) | trim | length > 0)
+            else []
+          }}
+
     - name: Run satellite-maintain update check
-      ansible.builtin.command: satellite-maintain update check
+      ansible.builtin.command:
+        argv: "{{ ['satellite-maintain', 'update', 'check', '--plaintext'] + maintain_whitelist_argv }}"
       register: maintain_check
       changed_when: false
-      when: satellite_update_action in ['check', 'run']
+      when: (satellite_update_action | default('check')) in ['check', 'run']
 
     - name: Show pre-update check results
       ansible.builtin.debug:
@@ -25,13 +33,16 @@
       when: maintain_check is not skipped
 
     - name: Run satellite-maintain update
-      ansible.builtin.command: satellite-maintain update run
+      ansible.builtin.command:
+        argv: "{{ ['satellite-maintain', 'update', 'run', '--plaintext'] + maintain_whitelist_argv }}"
       register: maintain_update
-      when: satellite_update_action == 'run'
+      async: 7200
+      poll: 60
+      when: (satellite_update_action | default('check')) == 'run'
 
     - name: Show update run results
       ansible.builtin.debug:
-        msg: "{{ maintain_update.stdout_lines }}"
+        msg: "{{ maintain_update.stdout_lines | default([]) }}"
       when: maintain_update is not skipped
 
     - name: Check whether a reboot is required
@@ -39,7 +50,7 @@
       register: reboot_required
       changed_when: false
       failed_when: reboot_required.rc not in [0, 1]
-      when: satellite_update_action == 'run'
+      when: (satellite_update_action | default('check')) == 'run'
 
     - name: Reboot Satellite Server
       ansible.builtin.reboot:
@@ -48,5 +59,5 @@
         post_reboot_delay: 120
         msg: Rebooting after Satellite server update
       when:
-        - satellite_update_action == 'run'
+        - (satellite_update_action | default('check')) == 'run'
         - reboot_required.rc == 1
