@@ -22,7 +22,7 @@
 
     - name: Run satellite-maintain update check
       ansible.builtin.command:
-        argv: "{{ ['satellite-maintain', 'update', 'check', '--plaintext'] + maintain_whitelist_argv }}"
+        argv: "{{ ['satellite-maintain', 'update', 'check', '--plaintext', '-y'] + maintain_whitelist_argv }}"
       register: maintain_check
       changed_when: false
       when: (satellite_update_action | default('check')) in ['check', 'run']
@@ -34,7 +34,7 @@
 
     - name: Run satellite-maintain update
       ansible.builtin.command:
-        argv: "{{ ['satellite-maintain', 'update', 'run', '--plaintext'] + maintain_whitelist_argv }}"
+        argv: "{{ ['satellite-maintain', 'update', 'run', '--plaintext', '-y'] + maintain_whitelist_argv }}"
       register: maintain_update
       async: 7200
       poll: 60
