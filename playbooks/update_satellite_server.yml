@@ -1,0 +1,52 @@
+---
+- name: Update Red Hat Satellite Server with satellite-maintain
+  hosts: "{{ vm_name | default('satellite.bk.lab') }}"
+  gather_facts: true
+  become: true
+  vars:
+    satellite_update_action: "{{ satellite_update_action | default('check') }}"
+
+  tasks:
+    - name: Confirm Satellite Server packages are installed
+      ansible.builtin.command: rpm -q satellite
+      register: satellite_rpm
+      changed_when: false
+      failed_when: satellite_rpm.rc != 0
+
+    - name: Run satellite-maintain update check
+      ansible.builtin.command: satellite-maintain update check
+      register: maintain_check
+      changed_when: false
+      when: satellite_update_action in ['check', 'run']
+
+    - name: Show pre-update check results
+      ansible.builtin.debug:
+        msg: "{{ maintain_check.stdout_lines }}"
+      when: maintain_check is not skipped
+
+    - name: Run satellite-maintain update
+      ansible.builtin.command: satellite-maintain update run
+      register: maintain_update
+      when: satellite_update_action == 'run'
+
+    - name: Show update run results
+      ansible.builtin.debug:
+        msg: "{{ maintain_update.stdout_lines }}"
+      when: maintain_update is not skipped
+
+    - name: Check whether a reboot is required
+      ansible.builtin.command: needs-restarting -r
+      register: reboot_required
+      changed_when: false
+      failed_when: reboot_required.rc not in [0, 1]
+      when: satellite_update_action == 'run'
+
+    - name: Reboot Satellite Server
+      ansible.builtin.reboot:
+        reboot_timeout: 3600
+        pre_reboot_delay: 120
+        post_reboot_delay: 120
+        msg: Rebooting after Satellite server update
+      when:
+        - satellite_update_action == 'run'
+        - reboot_required.rc == 1
