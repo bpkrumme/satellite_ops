@@ -9,4 +9,4 @@
         satellite_password: "{{ satellite_ops_password }}"
         satellite_server_url: "{{ satellite_ops_server_url }}"
         satellite_organization: "{{ satellite_ops_org_name }}"
-        satellite_content_view_version_cleanup_keep: 5
+        satellite_content_view_version_cleanup_keep: 2
